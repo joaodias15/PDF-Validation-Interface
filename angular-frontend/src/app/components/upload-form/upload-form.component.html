@@ -1,0 +1,55 @@
+<!-- Modal de resultado -->
+<div class="container">
+  <h2>Validar Assinatura Digital</h2>
+
+  <label for="file-upload" class="file-label">Escolher Ficheiro</label>
+  <input id="file-upload" type="file" (change)="onFileSelected($event)" hidden />
+
+  <p *ngIf="selectedFile" class="file-name">Ficheiro selecionado: {{ selectedFile.name }}</p>
+
+  <button (click)="uploadFile()" [disabled]="loading">
+    {{ loading ? "A processar..." : "Upload" }}
+  </button>
+</div>
+
+<!-- Modal de resultado -->
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <h3>Relatório de Validação</h3>
+
+    <div class="result-scroll-area">
+      <div *ngIf="responseData?.pdfValidation" class="status success">
+        Assinatura válida ✅
+      </div>
+      <div *ngIf="!responseData?.pdfValidation" class="status error">
+        Assinatura inválida ❌
+      </div>
+
+      <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index">
+        <h4>Assinatura #{{ i + 1 }}</h4>
+        <p><strong>Motivo:</strong> {{ sig.reason }}</p>
+        <p><strong>Data de Assinatura:</strong> {{ sig.signingDate | date:'dd/MM/yyyy HH:mm' }}</p>
+
+        <div *ngIf="sig.revocationValidationResult">
+          <p><strong>Estado de Revogação:</strong> {{ sig.revocationValidationResult.revocationStatus }}</p>
+          <p><strong>Verificado via:</strong> {{ sig.revocationValidationResult.validatedBy }}</p>
+          <p><strong>URL:</strong> {{ sig.revocationValidationResult.ocspUrl }}</p>
+          <p><strong>Data de Validação:</strong> {{ sig.revocationValidationResult.validationTimestamp | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+        </div>
+
+        <div *ngFor="let cert of sig.certificates; let j = index" class="certificate-box">
+          <h5>Certificado #{{ j + 1 }}</h5>
+          <p><strong>Nome:</strong> {{ cert.signerName }}</p>
+          <p><strong>Emissor:</strong> {{ cert.issuer }}</p>
+          <p><strong>Válido de:</strong> {{ cert.validFrom | date:'dd/MM/yyyy' }} a {{ cert.validTo | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Algoritmo:</strong> {{ cert.signatureAlgorithm }}</p>
+          <p><strong>Serial:</strong> {{ cert.serialNumber }}</p>
+          <p><strong>Validação Data:</strong> {{ cert.dataValidation ? '✅' : '❌' }}</p>
+          <p><strong>Validação Hash:</strong> {{ cert.hashValidation?.hashValidation ? '✅' : '❌' }}</p>
+        </div>
+        <hr />
+      </div>
+    </div>
+  </div>
+</div>

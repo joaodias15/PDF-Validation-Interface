@@ -1,0 +1,156 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #022448;
+    margin: 0;
+    padding: 20px;
+}
+  
+
+.container {
+    background: #fff;
+    padding: 40px;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 100px;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.file-label:hover {
+    background-color: #0056b3;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #28a745;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+  
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 10px;
+    position: relative;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+  
+.result-scroll-area {
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 5px;
+    background: #f7f7f7;
+    flex-grow: 1;
+}
+  
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #444;
+}
+  
+.status.success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+  
+.status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+  
+.certificate-box {
+    background: #e9ecef;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+}
+  
+
+
+.result-content {
+    white-space: pre-wrap;
+    font-size: 14px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 5px;
+    background: #f1f1f1;
+    border-left: 5px solid #007bff;
+}
+
+.valid {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .invalid {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .signature-block {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #eef2f7;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+  }
+  
+  .cert-block {
+    background-color: #fdfdfd;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-left: 4px solid #28a745;
+    border-radius: 5px;
+  }
+  
