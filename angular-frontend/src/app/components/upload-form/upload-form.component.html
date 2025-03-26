@@ -1,4 +1,3 @@
-<!-- Modal de resultado -->
 <div class="container">
   <h2>Validar Assinatura Digital</h2>
 
@@ -18,38 +17,114 @@
     <span class="close" (click)="closeModal()">&times;</span>
     <h3>Relatório de Validação</h3>
 
-    <div class="result-scroll-area">
-      <div *ngIf="responseData?.pdfValidation" class="status success">
-        Assinatura válida ✅
-      </div>
-      <div *ngIf="!responseData?.pdfValidation" class="status error">
-        Assinatura inválida ❌
-      </div>
+    <!-- RELATÓRIO SIMPLES -->
+    <div class="report-section">
+      <h4 class="report-tab">Simple Report</h4>
 
-      <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index">
-        <h4>Assinatura #{{ i + 1 }}</h4>
-        <p><strong>Motivo:</strong> {{ sig.reason }}</p>
-        <p><strong>Data de Assinatura:</strong> {{ sig.signingDate | date:'dd/MM/yyyy HH:mm' }}</p>
+      <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index" class="simple-block">
+        <ng-container *ngIf="sig.certificates[0] as cert">
+          <p><strong>Signer:</strong> {{ cert.signerName }}</p>
+          <p><strong>Issued by:</strong> {{ cert.issuer }}</p>
+          <p><strong>Validity:</strong> from {{ cert.validFrom | date:'yyyy-MM-dd' }} to {{ cert.validTo | date:'yyyy-MM-dd' }}</p>
 
-        <div *ngIf="sig.revocationValidationResult">
-          <p><strong>Estado de Revogação:</strong> {{ sig.revocationValidationResult.revocationStatus }}</p>
-          <p><strong>Verificado via:</strong> {{ sig.revocationValidationResult.validatedBy }}</p>
-          <p><strong>URL:</strong> {{ sig.revocationValidationResult.ocspUrl }}</p>
-          <p><strong>Data de Validação:</strong> {{ sig.revocationValidationResult.validationTimestamp | date:'dd/MM/yyyy HH:mm:ss' }}</p>
-        </div>
+          <!-- Se todos os certificados forem válidos -->
+          <ng-container *ngIf="isSignatureValid(sig.certificates)">
+            <p>✅ The data was successfully verified and none of the certificates were revoked at the time of validation.</p>
+          </ng-container>
 
-        <div *ngFor="let cert of sig.certificates; let j = index" class="certificate-box">
-          <h5>Certificado #{{ j + 1 }}</h5>
-          <p><strong>Nome:</strong> {{ cert.signerName }}</p>
-          <p><strong>Emissor:</strong> {{ cert.issuer }}</p>
-          <p><strong>Válido de:</strong> {{ cert.validFrom | date:'dd/MM/yyyy' }} a {{ cert.validTo | date:'dd/MM/yyyy' }}</p>
-          <p><strong>Algoritmo:</strong> {{ cert.signatureAlgorithm }}</p>
-          <p><strong>Serial:</strong> {{ cert.serialNumber }}</p>
-          <p><strong>Validação Data:</strong> {{ cert.dataValidation ? '✅' : '❌' }}</p>
-          <p><strong>Validação Hash:</strong> {{ cert.hashValidation?.hashValidation ? '✅' : '❌' }}</p>
-        </div>
-        <hr />
+          <!-- Se algum certificado falhar -->
+          <ng-container *ngIf="!isSignatureValid(sig.certificates)">
+            <p>❌ The signature is not valid. One or more certificates failed verification:</p>
+
+            <ul class="simple-error-list">
+              <li *ngFor="let c of sig.certificates">
+                <div *ngIf="!c.dataValidation || !c.hashValidation?.hashValidation || !c.revocationValidationResult?.result">
+                  <strong>{{ c.signerName }}:</strong>
+                  <ul>
+                    <li *ngIf="!c.dataValidation">Certificate is outside its validity period.</li>
+                    <li *ngIf="!c.hashValidation?.hashValidation">Content does not match the signature (hash mismatch).</li>
+                    <li *ngIf="!c.revocationValidationResult?.result">Certificate is revoked or revocation could not be confirmed.</li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </ng-container>
+        </ng-container>
       </div>
     </div>
+
+
+
+    <hr />
+
+    <!-- TECHNICAL REPORT -->
+    <div class="technical-report-section">
+      <h4 class="report-tab tech">Technical Report</h4>
+
+      <div class="technical-scroll-area">
+        <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index" class="tech-sig-block">
+          <h5 class="section-header">Signature #{{ i + 1 }}</h5>
+          <p><strong>Reason:</strong> {{ sig.reason }}</p>
+          <p><strong>Signing Date:</strong> {{ sig.signingDate | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+          <p><strong>Byte Range:</strong> {{ sig.byteRange.join(', ') }}</p>
+
+          <div *ngFor="let cert of sig.certificates; let j = index" class="certificate-tech-block">
+            <h6 class="section-header">Certificate #{{ j + 1 }}</h6>
+
+            <!-- Certificate Metadata -->
+            <div class="tech-section">
+              <h6 class="section-header-data" >Data</h6>
+              <p><strong>Signer Name:</strong> {{ cert.signerName }}</p>
+              <p><strong>Issuer:</strong> {{ cert.issuer }}</p>
+              <p><strong>Validity:</strong> 
+                from {{ cert.validFrom | date:'yyyy-MM-dd' }} 
+                to {{ cert.validTo | date:'yyyy-MM-dd' }}
+              </p>
+              <p><strong>Signature Algorithm:</strong> {{ cert.signatureAlgorithm }}</p>
+              <p><strong>Public Key (Base64):</strong> <span class="small-key">{{ cert.publicKeyBase64 }}</span></p>
+            </div>
+
+            <!-- Data Validation -->
+            <div class="tech-section">
+              <h6 class="section-header" >Data Validation</h6>
+              <p><strong>Start date:</strong> {{ cert.validFrom | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+              <p><strong>End date:</strong> {{ cert.validTo | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+              <p><strong>Data Valid:</strong> {{ cert.dataValidation ? 'Yes ✅' : 'No ❌' }}</p>
+            </div>
+
+            <!-- Hash Validation -->
+            <div class="tech-section">
+              <h6 class="section-header" >Hash Validation</h6>
+              <p><strong>PDF Hash:</strong> <span class="small-key">{{ cert.hashValidation?.hashPDF }}</span></p>
+              <p><strong>Signature Hash:</strong> <span class="small-key">{{ cert.hashValidation?.hashPDFSignature }}</span></p>
+              <p><strong>Hash Match:</strong> {{ cert.hashValidation?.hashValidation ? 'Yes ✅' : 'No ❌' }}</p>
+            </div>
+
+            <!-- Revocation Validation -->
+            <div class="tech-section">
+              <h6 class="section-header-revocation" >Revocation Validation</h6>
+              <p><strong>Status:</strong> {{ cert.revocationValidationResult?.revocationStatus }}</p>
+              <p><strong>Type:</strong> {{ cert.revocationValidationResult?.revocationType }}</p>
+              <p><strong>URL:</strong> {{ cert.revocationValidationResult?.url || 'N/A' }}</p>
+              <p><strong>Reason:</strong> {{ cert.revocationValidationResult?.reason }}</p>
+              <p><strong>Validation Timestamp:</strong> {{ cert.revocationValidationResult?.validationTimestamp | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+              <p><strong>Result:</strong> {{ cert.revocationValidationResult?.result ? 'Valid ✅' : 'Invalid ❌' }}</p>
+            </div>
+
+            <!-- OCSP Attempt -->
+            <div *ngIf="cert.ocspAttemptResult && cert.ocspAttemptResult.result === false" class="tech-section">
+              <h6 class="section-header">OCSP Attempt</h6>
+              <p><strong>Status:</strong> {{ cert.ocspAttemptResult.revocationStatus }}</p>
+              <p><strong>Type:</strong> {{ cert.ocspAttemptResult.revocationType }}</p>
+              <p><strong>URL:</strong> {{ cert.ocspAttemptResult.url || 'N/A' }}</p>
+              <p><strong>Reason:</strong> {{ cert.ocspAttemptResult.reason }}</p>
+              <p><strong>Timestamp:</strong> {{ cert.ocspAttemptResult.validationTimestamp | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+              <p><strong>Result:</strong> {{ cert.ocspAttemptResult.result ? 'Success ✅' : 'Failure ❌' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

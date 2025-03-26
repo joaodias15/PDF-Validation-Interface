@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfUploadService } from '../../services/pdf-upload.service';
-
+import { ValidationUtils } from '../../utils/validation-utils';
 @Component({
   selector: 'app-upload-form',
   standalone: true,
@@ -23,7 +23,7 @@ export class UploadFormComponent {
 
   uploadFile() {
     if (!this.selectedFile) {
-      alert("Selecione um ficheiro primeiro!");
+      alert("Select a file first!");
       return;
     }
 
@@ -35,14 +35,19 @@ export class UploadFormComponent {
         this.loading = false;
       },
       error: (err) => {
-        console.error("Erro no upload:", err);
-        alert("Erro ao processar o ficheiro.");
+        console.error("Error uploading:", err);
+        alert("Error processing the file.");
         this.loading = false;
       }
     });
   }
 
+  isSignatureValid = ValidationUtils.isSignatureValid;
+  getInvalidCertificates = ValidationUtils.getInvalidCertificates;
+
   closeModal() {
     this.showModal = false;
   }
+
+  
 }

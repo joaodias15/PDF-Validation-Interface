@@ -70,9 +70,9 @@ button:disabled {
     border-radius: 10px;
     position: relative;
     max-height: 90vh;
-    display: flex;
-    flex-direction: column;
+    overflow-y: auto;
 }
+  
   
 .result-scroll-area {
     overflow-y: auto;
@@ -152,5 +152,184 @@ button:disabled {
     border: 1px solid #ccc;
     border-left: 4px solid #28a745;
     border-radius: 5px;
+  }
+  
+
+  .report-section {
+    margin-top: 20px;
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 12px;
+    border: 5px solid #022448;
+  }
+  
+  .report-tab {
+    background-color: #022448;
+    color: white;
+    padding: 8px 12px;
+    margin: -20px -20px 20px -20px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-size: 18px;
+  }
+  
+  .simple-block {
+    text-align: left;
+    padding: 15px;
+    border-radius: 6px;
+    background-color: #f7faff;
+    border-left: 4px solid #007bff;
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .simple-error-list {
+    padding-left: 20px;
+    color: #a94442;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  
+  
+
+  .technical-report-section {
+    margin-top: 30px;
+    background-color: #fff;
+    border: 5px solid #022448;
+    border-radius: 12px;
+    padding: 0;
+    font-size: 14px;
+  }
+  
+  .report-tab.tech {
+    background-color: #022448;
+    color: white;
+    padding: 8px 12px;
+    margin: 0;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-size: 18px;
+  }
+  
+  .technical-scroll-area {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .tech-sig-block {
+    background: #eef1f4;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border-left: 4px solid #007bff;
+  }
+  
+  .certificate-tech-block {
+    background-color: #ffffff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #459ffe;
+  }
+  
+  .tech-section {
+    background-color: #f0f4f8;
+    border-left: 4px solid #7ebdff;
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+  }
+
+  h5 {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  h6 {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+
+  h3 {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .section-header {
+    position: relative;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .section-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 130px;
+    background-color: #a4a4a4;
+    border-radius: 1px;
+  }
+
+  .section-header-revocation {
+    position: relative;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .section-header-revocation::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 180px;
+    background-color: #a4a4a4;
+    border-radius: 1px;
+  }
+
+  .section-header-data {
+    position: relative;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .section-header-data::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 50px;
+    background-color: #a4a4a4;
+    border-radius: 1px;
+  }
+  
+  hr {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border: 0;
+    border-top: 1px solid #a4a4a4;
+  }
+  
+
+  .small-key {
+    font-size: 12px;
+    word-break: break-all;
+    display: block;
+    background: #f0f4f8;
+    padding: 6px;
+    border-radius: 4px;
+    margin-top: 5px;
   }
   
