@@ -187,53 +187,23 @@ public class PDFSignatureService {
             }
 
             // Verification of the certificates revocation
-            if (certs.size() >= 2) {
-                Collections.reverse(certs);
-                Collections.reverse(signatureInfo.getCertificates());
-
-                for (int i = 0; i < certs.size(); i++) {
-                    X509Certificate cert = certs.get(i);
-
-                    X509Certificate issuerCert;
-                    if (i + 1 < certs.size()) {
-                        issuerCert = certs.get(i + 1);
-                    } else {
-                        issuerCert = cert;
-                    }
-
-                    RevocationValidationResult result = verifyCertificateRevocation(cert, issuerCert);
-                    boolean notRevoked = result.getResult();
-
-                    SignatureCertificate certInfo = signatureInfo.getCertificates().get(i);
-                    certInfo.setRevocationValidationResult(result);
-                    certInfo.setOcspAttemptResult(CertificateRevocationChecker.getLastOCSPAttempt());
-
-                    if (!notRevoked) {
-                        System.out.println("Revoked certificate: " + cert.getSubjectX500Principal());
-                        isCertValid = false;
-                    }
-                }
-            } else if (certs.size() == 1) {
-                X509Certificate cert = certs.get(0);
-                SignatureCertificate certModel = signatureInfo.getCertificates().get(0);
+            for (int i = 0; i < certs.size(); i++) {
+                X509Certificate cert = certs.get(i);
+                X509Certificate issuerCert = findIssuer(cert, certs);
             
-                CertificateRevocationChecker.isCertificateValid(cert, cert, true);
-
-                RevocationValidationResult ocspAttempt = CertificateRevocationChecker.getLastOCSPAttempt();
-                RevocationValidationResult result = CertificateRevocationChecker.getRevocationValidationResult();
-
-                certModel.setOcspAttemptResult(ocspAttempt);
-                certModel.setRevocationValidationResult(result);
-
+                RevocationValidationResult result = verifyCertificateRevocation(cert, issuerCert);
+                boolean notRevoked = result != null && result.getResult();
             
-                if (!result.getResult()) {
+                SignatureCertificate certInfo = signatureInfo.getCertificates().get(i);
+                certInfo.setRevocationValidationResult(result);
+                certInfo.setOcspAttemptResult(CertificateRevocationChecker.getLastOCSPAttempt());
+            
+                if (!notRevoked) {
                     System.out.println("Revoked certificate: " + cert.getSubjectX500Principal());
                     isCertValid = false;
                 }
-            } else {
-                System.out.println("It is not possible to validate the certificate: certificate path incomplete.");
-                return false;
             }
+            
 
             return isCertValid;
         } catch (Exception e) {
@@ -310,6 +280,20 @@ public class PDFSignatureService {
             return null;
         }
     }
+
+    /*
+     * Finds the issuer of the certificate
+     * @param cert
+     * @param allCerts
+     * @return X509Certificate
+     */
+    private X509Certificate findIssuer(X509Certificate cert, List<X509Certificate> allCerts) {
+        return allCerts.stream()
+            .filter(issuer -> cert.getIssuerX500Principal().equals(issuer.getSubjectX500Principal()))
+            .findFirst()
+            .orElse(cert);
+    }
+    
 
 
     /*
