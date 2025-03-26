@@ -1,0 +1,32 @@
+@startuml domainModel
+'skin parameters for aesthetics
+'skinparam linetype ortho
+skinparam class {
+    BackgroundColor LightGray
+    BorderColor Black
+    ArrowColor DarkGray
+    FontName Arial
+    FontSize 12
+    BorderThickness 1
+}
+
+' Define objects
+object DocumentoAssinado
+object AssinaturaDigital
+object CertificadoDigital
+object AutoridadeCertificadora
+object ValidadorAssinatura
+object ListaConfiança
+object ResultadoValidação
+
+DocumentoAssinado --o AssinaturaDigital : "1..* contains"
+AssinaturaDigital --o CCertificadoDigital : "1 associated to"
+CertificadoDigital --o AutoridadeCertificadora : "1 emitted by"
+ValidadorAssinatura -- AssinaturaDigital : "validates"
+ValidadorAssinatura -- CertificadoDigital : "verifies"
+ValidadorAssinatura -- ListaConfiança : "consults"
+ValidadorAssinatura -- ResultadoValidação: "returns"
+
+
+
+@enduml
