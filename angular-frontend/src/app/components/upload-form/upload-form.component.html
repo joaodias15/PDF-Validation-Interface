@@ -1,38 +1,40 @@
 <div class="container">
-  <h2>Validar Assinatura Digital</h2>
+  <h2>Validate Digital Signature</h2>
 
   <label for="file-upload" class="file-label">Escolher Ficheiro</label>
   <input id="file-upload" type="file" (change)="onFileSelected($event)" hidden />
 
-  <p *ngIf="selectedFile" class="file-name">Ficheiro selecionado: {{ selectedFile.name }}</p>
+  <p *ngIf="selectedFile" class="file-name">Select File: {{ selectedFile.name }}</p>
 
   <button (click)="uploadFile()" [disabled]="loading">
-    {{ loading ? "A processar..." : "Upload" }}
+    {{ loading ? "Processing..." : "Upload" }}
   </button>
 </div>
 
-<!-- Modal de resultado -->
+<!-- Result -->
 <div class="modal" *ngIf="showModal">
   <div class="modal-content">
     <span class="close" (click)="closeModal()">&times;</span>
-    <h3>Relatório de Validação</h3>
+    <h3>Validation Report</h3>
 
-    <!-- RELATÓRIO SIMPLES -->
+    <!-- SIMPLE REPORT -->
     <div class="report-section">
       <h4 class="report-tab">Simple Report</h4>
 
       <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index" class="simple-block">
-        <ng-container *ngIf="sig.certificates[0] as cert">
+        <h5 class="section-header">Signature #{{ i + 1 }}</h5>
+        <ng-container *ngIf="getCertificateByType(sig.certificates, 'ENTITY') as cert">
           <p><strong>Signer:</strong> {{ cert.signerName }}</p>
           <p><strong>Issued by:</strong> {{ cert.issuer }}</p>
+          <p><strong>Signing Date:</strong> {{ sig.signingDate | date:'yyyy-MM-dd HH:mm:ss' }}</p>
           <p><strong>Validity:</strong> from {{ cert.validFrom | date:'yyyy-MM-dd' }} to {{ cert.validTo | date:'yyyy-MM-dd' }}</p>
 
-          <!-- Se todos os certificados forem válidos -->
+          <!-- If all the certificates are valid -->
           <ng-container *ngIf="isSignatureValid(sig.certificates)">
             <p>✅ The data was successfully verified and none of the certificates were revoked at the time of validation.</p>
           </ng-container>
 
-          <!-- Se algum certificado falhar -->
+          <!-- If some certificate fails -->
           <ng-container *ngIf="!isSignatureValid(sig.certificates)">
             <p>❌ The signature is not valid. One or more certificates failed verification:</p>
 
@@ -71,9 +73,10 @@
           <div *ngFor="let cert of sig.certificates; let j = index" class="certificate-tech-block">
             <h6 class="section-header">Certificate #{{ j + 1 }}</h6>
 
-            <!-- Certificate Metadata -->
+            <!-- Certificate Data -->
             <div class="tech-section">
               <h6 class="section-header-data" >Data</h6>
+              <p><strong>Type:</strong> {{ cert.type }}</p>
               <p><strong>Signer Name:</strong> {{ cert.signerName }}</p>
               <p><strong>Issuer:</strong> {{ cert.issuer }}</p>
               <p><strong>Validity:</strong> 
@@ -87,8 +90,8 @@
             <!-- Data Validation -->
             <div class="tech-section">
               <h6 class="section-header" >Data Validation</h6>
-              <p><strong>Start date:</strong> {{ cert.validFrom | date:'yyyy-MM-dd HH:mm:ss' }}</p>
-              <p><strong>End date:</strong> {{ cert.validTo | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+              <p><strong>Valid from:</strong> {{ cert.validFrom | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+              <p><strong>Valid to:</strong> {{ cert.validTo | date:'yyyy-MM-dd HH:mm:ss' }}</p>
               <p><strong>Data Valid:</strong> {{ cert.dataValidation ? 'Yes ✅' : 'No ❌' }}</p>
             </div>
 

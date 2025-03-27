@@ -1,11 +1,13 @@
 package com.exemplo.pdfapi.services;
 
-import com.exemplo.pdfapi.domain.DigitalSignatureInfo;
-import com.exemplo.pdfapi.domain.HashValidation;
 import com.exemplo.pdfapi.domain.Report;
-import com.exemplo.pdfapi.domain.RevocationValidationResult;
-import com.exemplo.pdfapi.domain.SignatureCertificate;
-import com.exemplo.pdfapi.ocsp.CertificateRevocationChecker;
+import com.exemplo.pdfapi.domain.signature.CertificateType;
+import com.exemplo.pdfapi.domain.signature.DigitalSignatureInfo;
+import com.exemplo.pdfapi.domain.signature.SignatureCertificate;
+import com.exemplo.pdfapi.domain.validations.HashValidation;
+import com.exemplo.pdfapi.domain.validations.RevocationValidationResult;
+import com.exemplo.pdfapi.errorHandling.MultipleValidationException;
+import com.exemplo.pdfapi.revocationValidation.CertificateRevocationChecker;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
@@ -47,10 +49,20 @@ public class PDFSignatureService {
      * @throws IOException
      */
     public Report processAndExtractSignature(MultipartFile file) throws IOException {
-        // Verification if the file is more than 5MB
+        List<String> validationErrors = new ArrayList<>();
+
         if (file.getSize() > 5 * 1024 * 1024) {
-            throw new IOException("File size exceeds the limit of 5MB.");
+            validationErrors.add("The uploaded file exceeds the 5MB size limit.");
         }
+
+        if (!file.getOriginalFilename().endsWith(".pdf")) {
+            validationErrors.add("Only PDF files are allowed.");
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new MultipleValidationException(validationErrors);
+        }
+
 
         File tempFile = File.createTempFile("uploaded_", ".pdf");
         file.transferTo(tempFile);
@@ -127,8 +139,21 @@ public class PDFSignatureService {
             List<SignatureCertificate> certList = new ArrayList<>();
             DigitalSignatureInfo signatureInfo = new DigitalSignatureInfo(reason, signingDate, byteRange, certList);
 
+            boolean entityAlreadySet = false;
+
             for (X509Certificate cert : certs) {
-                certList.add(new SignatureCertificate(cert.getSubjectX500Principal().getName() ,cert.getNotBefore(),
+                CertificateType type;
+
+                if (isSelfSigned(cert)) {
+                    type = CertificateType.ROOT;
+                } else if (!entityAlreadySet && !isCA(cert)) {
+                    type = CertificateType.ENTITY;
+                    entityAlreadySet = true;
+                } else {
+                    type = CertificateType.INTERMEDIATE;
+                }
+
+                certList.add(new SignatureCertificate(type, cert.getSubjectX500Principal().getName() ,cert.getNotBefore(),
                             cert.getNotAfter(), cert.getIssuerX500Principal().getName(), cert.getSerialNumber().toString(), cert.getSigAlgName(), cert.getKeyUsage(), cert.getPublicKey(), Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded()), false, null, null, null));
             }
 
@@ -140,6 +165,25 @@ public class PDFSignatureService {
             return null;
         }
     }
+
+    /*
+     * Verifies if the certificate is self-signed
+     * @param cert
+     * @return boolean
+     */
+    private boolean isSelfSigned(X509Certificate cert) {
+        return cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal());
+    }
+
+    /*
+     * Verifies if the certificate is a CA (Certificate Authority)
+     * @param cert
+     * @return boolean
+     */
+    private boolean isCA(X509Certificate cert) {
+        return cert.getBasicConstraints() != -1;
+    }
+    
 
 
     /*
@@ -261,7 +305,9 @@ public class PDFSignatureService {
     /*
      * Test the CRL verification manually
      * @param certs
+     * @return RevocationValidationResult
      */
+    /*
     private RevocationValidationResult testCRLManually(List<X509Certificate> certs) {
         try {
             if (certs.isEmpty()) {
@@ -280,6 +326,8 @@ public class PDFSignatureService {
             return null;
         }
     }
+    */
+
 
     /*
      * Finds the issuer of the certificate

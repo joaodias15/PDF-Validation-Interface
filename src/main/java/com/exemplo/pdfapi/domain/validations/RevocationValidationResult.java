@@ -1,8 +1,7 @@
-package com.exemplo.pdfapi.domain;
+package com.exemplo.pdfapi.domain.validations;
 
 import java.time.Instant;
-
-import com.exemplo.pdfapi.ocsp.RevocationTypeEnum;
+import com.exemplo.pdfapi.revocationValidation.RevocationTypeEnum;
 
 public class RevocationValidationResult {
     
@@ -84,7 +83,7 @@ public class RevocationValidationResult {
     public String toString() {
         return "RevocationValidationResult{" +
                 "revocationStatus='" + revocationStatus + '\'' +
-                ", validatedBy='" + revocationType.toString() + '\'' +
+                ", validatedBy='" + revocationType + '\'' +
                 ", ocspUrl='" + url + '\'' +
                 ", reason='" + reason + '\'' +
                 ", validationTimestamp=" + validationTimestamp +

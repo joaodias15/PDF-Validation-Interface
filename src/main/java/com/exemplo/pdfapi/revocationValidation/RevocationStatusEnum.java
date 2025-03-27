@@ -1,4 +1,4 @@
-package com.exemplo.pdfapi.ocsp;
+package com.exemplo.pdfapi.revocationValidation;
 
 /*
 * Enum to represent the revocation status of a certificate.

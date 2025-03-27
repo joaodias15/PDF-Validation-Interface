@@ -204,9 +204,9 @@ button:disabled {
   .technical-report-section {
     margin-top: 30px;
     background-color: #fff;
-    border: 5px solid #022448;
+    border: 6px solid #022448;
     border-radius: 12px;
-    padding: 0;
+    padding: 0px;
     font-size: 14px;
   }
   
@@ -215,8 +215,8 @@ button:disabled {
     color: white;
     padding: 8px 12px;
     margin: 0;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
     font-size: 18px;
   }
   

@@ -3,6 +3,8 @@ package com.exemplo.pdfapi.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.exemplo.pdfapi.domain.signature.DigitalSignatureInfo;
+
 public class Report {
 
     private List<DigitalSignatureInfo> digitalSignatureInfo = new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.exemplo.pdfapi.ocsp;
+package com.exemplo.pdfapi.revocationValidation;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -10,7 +10,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.DigestCalculator;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 
-import com.exemplo.pdfapi.domain.RevocationValidationResult;
 import com.google.common.cache.CacheBuilder;
 
 import java.io.*;
@@ -23,6 +22,8 @@ import java.security.cert.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import com.exemplo.pdfapi.domain.validations.RevocationValidationResult;
 import com.google.common.cache.Cache;
 
 public class CertificateRevocationChecker {
@@ -40,7 +41,7 @@ public class CertificateRevocationChecker {
 
     // Cache to avoid multiple OCSP requests for the same certificate
     private static final Cache<String, RevocationValidationResult> ocspCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .expireAfterWrite(12, TimeUnit.HOURS)
             .maximumSize(1000)
             .build();
 

@@ -1,4 +1,4 @@
-package com.exemplo.pdfapi.domain;
+package com.exemplo.pdfapi.domain.signature;
 
 import java.util.Arrays;
 import java.util.Date;

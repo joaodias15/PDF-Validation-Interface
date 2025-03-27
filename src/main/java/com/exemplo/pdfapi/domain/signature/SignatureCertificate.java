@@ -1,11 +1,15 @@
-package com.exemplo.pdfapi.domain;
+package com.exemplo.pdfapi.domain.signature;
 
 import java.security.PublicKey;
 import java.util.Date;
 
+import com.exemplo.pdfapi.domain.validations.HashValidation;
+import com.exemplo.pdfapi.domain.validations.RevocationValidationResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class SignatureCertificate {
+
+    private CertificateType type;
 
     private String signerName;
 
@@ -35,10 +39,10 @@ public class SignatureCertificate {
     private RevocationValidationResult ocspAttemptResult;
 
 
-    
 
 
-    public SignatureCertificate(String signerName, Date validFrom, Date validTo, String issuer, String serialNumber, String signatureAlgorithm, boolean[] keyUsage, PublicKey publicKey, String publicKeyBase64, boolean dataValidation, HashValidation hashValidation, RevocationValidationResult revocationValidationResult, RevocationValidationResult ocspAttemptResult) {
+    public SignatureCertificate(CertificateType type, String signerName, Date validFrom, Date validTo, String issuer, String serialNumber, String signatureAlgorithm, boolean[] keyUsage, PublicKey publicKey, String publicKeyBase64, boolean dataValidation, HashValidation hashValidation, RevocationValidationResult revocationValidationResult, RevocationValidationResult ocspAttemptResult) {
+        this.type = type;
         this.signerName = signerName;
         this.validFrom = validFrom;
         this.validTo = validTo;
@@ -55,6 +59,7 @@ public class SignatureCertificate {
     }
 
 
+    public CertificateType getType() { return type; }
     public String getSignerName() { return signerName; }
     public String getIssuer() { return issuer; }
     public Date getValidFrom() { return validFrom; }
@@ -70,6 +75,7 @@ public class SignatureCertificate {
     public RevocationValidationResult getRevocationValidationResult() { return revocationValidationResult; }
     public RevocationValidationResult getOcspAttemptResult() { return ocspAttemptResult; }
 
+    public void setType(CertificateType type) { this.type = type; }
     public void setDataValidation(boolean dataValidation) { this.dataValidation = dataValidation; }
     public void setHashValidation(HashValidation hashValidation) { this.hashValidation = hashValidation; }
     public void setRevocationValidationResult(RevocationValidationResult revocationValidationResult) { this.revocationValidationResult = revocationValidationResult; }
@@ -79,6 +85,7 @@ public class SignatureCertificate {
     @Override
     public String toString() {
         return "SignatureCertificate{" +
+                "type=" + type +
                 "signerName='" + signerName + '\'' +
                 ", issuer='" + issuer + '\'' +
                 ", validFrom=" + validFrom +

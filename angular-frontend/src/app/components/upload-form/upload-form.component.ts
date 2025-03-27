@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfUploadService } from '../../services/pdf-upload.service';
 import { ValidationUtils } from '../../utils/validation-utils';
+
 @Component({
   selector: 'app-upload-form',
   standalone: true,
@@ -9,6 +10,7 @@ import { ValidationUtils } from '../../utils/validation-utils';
   styleUrls: ['./upload-form.component.css'],
   imports: [CommonModule]
 })
+
 export class UploadFormComponent {
   selectedFile: File | null = null;
   responseData: any = null;
@@ -35,13 +37,25 @@ export class UploadFormComponent {
         this.loading = false;
       },
       error: (err) => {
-        console.error("Error uploading:", err);
-        alert("Error processing the file.");
+        console.error("Erro no upload:", err);
+      
+        if (err.error?.errors) {
+          alert("Erros:\n" + err.error.errors.join("\n"));
+        } else if (err.error?.message) {
+          alert("Erro: " + err.error.message);
+        } else {
+          alert("Erro inesperado ao pro cessar o ficheiro.");
+        }
+      
         this.loading = false;
-      }
+      }         
     });
   }
 
+  getCertificateByType(certificates: any[], type: string): any {
+    return certificates.find(c => c.type === type);
+  }
+  
   isSignatureValid = ValidationUtils.isSignatureValid;
   getInvalidCertificates = ValidationUtils.getInvalidCertificates;
 

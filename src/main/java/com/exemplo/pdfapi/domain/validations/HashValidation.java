@@ -1,4 +1,4 @@
-package com.exemplo.pdfapi.domain;
+package com.exemplo.pdfapi.domain.validations;
 
 public class HashValidation {
 

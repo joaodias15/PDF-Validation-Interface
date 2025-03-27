@@ -22,6 +22,6 @@ export class PdfUploadService {
 
   private handleError(error: HttpErrorResponse) {
     console.error('Erro ao fazer upload:', error);
-    return throwError(() => new Error('Erro ao processar o ficheiro.'));
+    return throwError(() => error);
   }
 }
