@@ -11,11 +11,13 @@ import { ValidationUtils } from '../../utils/validation-utils';
   imports: [CommonModule]
 })
 
+
 export class UploadFormComponent {
   selectedFile: File | null = null;
   responseData: any = null;
   loading = false;
   showModal = false;
+  errorMessage: string | null = null;
 
   constructor(private pdfUploadService: PdfUploadService) {}
 
@@ -24,11 +26,13 @@ export class UploadFormComponent {
   }
 
   uploadFile() {
+    this.errorMessage = null;
+  
     if (!this.selectedFile) {
-      alert("Select a file first!");
+      this.errorMessage = "Select a file first!";
       return;
     }
-
+  
     this.loading = true;
     this.pdfUploadService.uploadPdf(this.selectedFile).subscribe({
       next: (data) => {
@@ -37,20 +41,18 @@ export class UploadFormComponent {
         this.loading = false;
       },
       error: (err) => {
-        console.error("Erro no upload:", err);
-      
-        if (err.error?.errors) {
-          alert("Erros:\n" + err.error.errors.join("\n"));
-        } else if (err.error?.message) {
-          alert("Erro: " + err.error.message);
-        } else {
-          alert("Erro inesperado ao pro cessar o ficheiro.");
-        }
-      
         this.loading = false;
-      }         
+        if (err.error?.errors?.length) {
+          this.errorMessage = err.error.errors[0];
+        } else if (err.error?.message) {
+          this.errorMessage = err.error.message;
+        } else {
+          this.errorMessage = "Unexpected error while processing the file.";
+        }
+      }
     });
   }
+  
 
   getCertificateByType(certificates: any[], type: string): any {
     return certificates.find(c => c.type === type);

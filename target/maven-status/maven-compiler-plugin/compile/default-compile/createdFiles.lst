@@ -1,6 +1,3 @@
 com/exemplo/pdfapi/services/PDFSignatureService.class
-com/exemplo/pdfapi/revocationValidation/RevocationTypeEnum.class
-com/exemplo/pdfapi/revocationValidation/RevocationStatusEnum.class
 com/exemplo/pdfapi/PdfSignatureApiApplication.class
-com/exemplo/pdfapi/revocationValidation/CertificateRevocationChecker.class
 com/exemplo/pdfapi/controllers/PdfController.class

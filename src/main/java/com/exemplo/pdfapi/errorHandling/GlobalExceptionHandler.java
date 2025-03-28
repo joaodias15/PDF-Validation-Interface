@@ -1,11 +1,13 @@
 package com.exemplo.pdfapi.errorHandling;
 
 import java.util.List;
-import com.exemplo.pdfapi.domain.ApiErrorResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import com.exemplo.pdfapi.domain.error.ApiErrorResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,5 +41,6 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
 }
 

@@ -1,7 +1,8 @@
 package com.exemplo.pdfapi.domain.validations;
 
 import java.time.Instant;
-import com.exemplo.pdfapi.revocationValidation.RevocationTypeEnum;
+
+import com.exemplo.pdfapi.enums.revocationValidation.RevocationTypeEnum;
 
 public class RevocationValidationResult {
     

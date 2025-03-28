@@ -16,13 +16,22 @@
   <div class="modal-content">
     <span class="close" (click)="closeModal()">&times;</span>
     <h3>Validation Report</h3>
+    
 
     <!-- SIMPLE REPORT -->
     <div class="report-section">
       <h4 class="report-tab">Simple Report</h4>
 
       <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index" class="simple-block">
+        
         <h5 class="section-header">Signature #{{ i + 1 }}</h5>
+
+        <ng-container *ngIf="sig.structureError">
+          <p class="error-message">
+            ⚠️ {{ sig.structureError }}
+          </p>
+        </ng-container>
+        
         <ng-container *ngIf="getCertificateByType(sig.certificates, 'ENTITY') as cert">
           <p><strong>Signer:</strong> {{ cert.signerName }}</p>
           <p><strong>Issued by:</strong> {{ cert.issuer }}</p>
@@ -71,7 +80,7 @@
           <p><strong>Byte Range:</strong> {{ sig.byteRange.join(', ') }}</p>
 
           <div *ngFor="let cert of sig.certificates; let j = index" class="certificate-tech-block">
-            <h6 class="section-header">Certificate #{{ j + 1 }}</h6>
+            <h6 class="section-header">Certificate #{{ j + 1 }}{{ cert.isValid ? ' ✅' : ' ❌' }}</h6>
 
             <!-- Certificate Data -->
             <div class="tech-section">

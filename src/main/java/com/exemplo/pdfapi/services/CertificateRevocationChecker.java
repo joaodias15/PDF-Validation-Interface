@@ -1,4 +1,4 @@
-package com.exemplo.pdfapi.revocationValidation;
+package com.exemplo.pdfapi.services;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -9,6 +9,7 @@ import org.bouncycastle.cert.ocsp.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.DigestCalculator;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.springframework.stereotype.Service;
 
 import com.google.common.cache.CacheBuilder;
 
@@ -24,8 +25,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.exemplo.pdfapi.domain.validations.RevocationValidationResult;
+import com.exemplo.pdfapi.enums.revocationValidation.RevocationStatusEnum;
+import com.exemplo.pdfapi.enums.revocationValidation.RevocationTypeEnum;
 import com.google.common.cache.Cache;
 
+@Service
 public class CertificateRevocationChecker {
 
 
@@ -36,8 +40,9 @@ public class CertificateRevocationChecker {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    private static RevocationValidationResult revocationValidationResult;
-    private static RevocationValidationResult lastOCSPAttempt = null;
+    private RevocationValidationResult revocationValidationResult;
+
+    private RevocationValidationResult lastOCSPAttempt;
 
     // Cache to avoid multiple OCSP requests for the same certificate
     private static final Cache<String, RevocationValidationResult> ocspCache = CacheBuilder.newBuilder()
@@ -53,7 +58,7 @@ public class CertificateRevocationChecker {
      * @param strictMode If true, the method will return false if the OCSP status is unknown.
      * @return true if the certificate is valid, false otherwise.
      */
-    public static boolean isCertificateValid(X509Certificate cert, X509Certificate issuerCert, boolean strictMode) {
+    public boolean isCertificateValid(X509Certificate cert, X509Certificate issuerCert, boolean strictMode) {
         try {
             checkOCSP(cert, issuerCert);
             System.out.println("Result OCSP to " + cert.getSubjectX500Principal() + ": " + revocationValidationResult.getRevocationStatus());
@@ -75,16 +80,11 @@ public class CertificateRevocationChecker {
             // OCSP == UNKNOWN → tries CRL if strictMode is enabled
             if (strictMode) {
                 System.out.println("OCSP returned UNKNOWN → trying CRL...");
-                boolean crlValid = checkCRL(cert);
-                if (!crlValid) {    
-                    System.out.println("CRL: certificate revoked.");
-                    return false;
-                }
-                System.out.println("CRL: certificate valid.");
-                return true;
+                return fallbackToCRL(cert);
             } else {
                 System.out.println("OCSP returned UNKNOWN but the strictMode is inactive → valid.");
-                return true;
+                revocationValidationResult = lastOCSPAttempt;
+                return false;
             }
     
         } catch (Exception e) {
@@ -92,24 +92,37 @@ public class CertificateRevocationChecker {
     
             if (strictMode) {
                 System.out.println("strictMode active → trying CRL...");
-                try {
-                    boolean crlValid = checkCRL(cert);
-                    if (!crlValid) {
-                        System.out.println("CRL: certificate revoked.");
-                        return false;
-                    }
-                    System.out.println("CRL: certificate valid.");
-                    return true;
-                } catch (Exception ex) {
-                    System.out.println("Error trying CRL: " + ex.getMessage());
-                    return false;
-                }
+                return fallbackToCRL(cert);
             } else {
                 System.out.println("strictMode inactive → valid.");
-                return true;
+                revocationValidationResult = lastOCSPAttempt;
+                return false;
             }
         }
     }
+
+    /*
+     * Checks if a certificate is valid by checking its revocation status using CRL when OCSP fails.
+     * @param cert
+     * @param issuerCert
+     * @return true if the certificate is valid, false otherwise.
+     */
+    private boolean fallbackToCRL(X509Certificate cert) {
+        try {
+            System.out.println("Trying CRL...");
+            boolean crlValid = checkCRL(cert);
+            if (!crlValid) {
+                System.out.println("CRL: certificate revoked.");
+                return false;
+            }
+            System.out.println("CRL: certificate valid.");
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Error trying CRL: " + ex.getMessage());
+            return false;
+        }
+    }
+    
     
     
     /*
@@ -119,7 +132,7 @@ public class CertificateRevocationChecker {
      * @return The revocation status of the certificate.
      * @throws Exception
      */
-    private static void checkOCSP(X509Certificate cert, X509Certificate issuerCert) throws Exception {
+    private void checkOCSP(X509Certificate cert, X509Certificate issuerCert) throws Exception {
         lastOCSPAttempt = null;
         revocationValidationResult = null;
         
@@ -228,7 +241,7 @@ public class CertificateRevocationChecker {
      * @return A list of OCSP URLs.
      * @throws IOException
      */
-    private static List<String> getOCSPUrls(X509Certificate cert) throws IOException {
+    private List<String> getOCSPUrls(X509Certificate cert) throws IOException {
         byte[] aiaExtension = cert.getExtensionValue(Extension.authorityInfoAccess.getId());
         if (aiaExtension == null) return Collections.emptyList();
 
@@ -260,7 +273,7 @@ public class CertificateRevocationChecker {
      * @return The OCSP response.
      * @throws IOException
      */
-    private static byte[] postOCSPRequest(String serviceUrl, byte[] requestData) throws IOException {
+    private byte[] postOCSPRequest(String serviceUrl, byte[] requestData) throws IOException {
         URL url = new URL(serviceUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Content-Type", "application/ocsp-request");
@@ -290,7 +303,7 @@ public class CertificateRevocationChecker {
      * @return true if the certificate is valid, false otherwise.
      * @throws Exception
      */
-    public static boolean checkCRL(X509Certificate cert) throws Exception {
+    public boolean checkCRL(X509Certificate cert) throws Exception {
         System.out.println("Verifying CRL to: " + cert.getSubjectX500Principal());
 
         byte[] ext = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
@@ -356,7 +369,7 @@ public class CertificateRevocationChecker {
      * @return A list of CRL URLs.
      * @throws IOException
      */
-    private static List<String> getCRLUrls(X509Certificate cert) throws IOException {
+    private List<String> getCRLUrls(X509Certificate cert) throws IOException {
         byte[] ext = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
         if (ext == null) return Collections.emptyList();
     
@@ -394,7 +407,7 @@ public class CertificateRevocationChecker {
      * @param issuerCert
      * @return The cache key.
      */
-    private static String generateCacheKey(X509Certificate cert) {
+    private String generateCacheKey(X509Certificate cert) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedCert = cert.getEncoded();
@@ -415,7 +428,7 @@ public class CertificateRevocationChecker {
      * Gets the last revocation validation result.
      * @return The last revocation validation result.
      */
-    public static RevocationValidationResult getRevocationValidationResult() {
+    public RevocationValidationResult getRevocationValidationResult() {
         return revocationValidationResult;
     }
 
@@ -424,7 +437,7 @@ public class CertificateRevocationChecker {
      * Gets the last OCSP attempt.
      * @return The last OCSP attempt.
      */
-    public static RevocationValidationResult getLastOCSPAttempt() {
+    public RevocationValidationResult getLastOCSPAttempt() {
         return lastOCSPAttempt;
     }
 

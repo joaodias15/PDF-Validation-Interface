@@ -1,4 +1,4 @@
-package com.exemplo.pdfapi.revocationValidation;
+package com.exemplo.pdfapi.enums.revocationValidation;
 
 /*
 * Enum to represent the type of revocation validation.

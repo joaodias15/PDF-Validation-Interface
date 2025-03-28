@@ -38,10 +38,12 @@ public class SignatureCertificate {
 
     private RevocationValidationResult ocspAttemptResult;
 
+    private boolean isValid;
 
 
 
-    public SignatureCertificate(CertificateType type, String signerName, Date validFrom, Date validTo, String issuer, String serialNumber, String signatureAlgorithm, boolean[] keyUsage, PublicKey publicKey, String publicKeyBase64, boolean dataValidation, HashValidation hashValidation, RevocationValidationResult revocationValidationResult, RevocationValidationResult ocspAttemptResult) {
+
+    public SignatureCertificate(CertificateType type, String signerName, Date validFrom, Date validTo, String issuer, String serialNumber, String signatureAlgorithm, boolean[] keyUsage, PublicKey publicKey, String publicKeyBase64, boolean dataValidation, HashValidation hashValidation, RevocationValidationResult revocationValidationResult, RevocationValidationResult ocspAttemptResult, boolean isTotalValid) {
         this.type = type;
         this.signerName = signerName;
         this.validFrom = validFrom;
@@ -56,6 +58,7 @@ public class SignatureCertificate {
         this.hashValidation = hashValidation;
         this.revocationValidationResult = revocationValidationResult;
         this.ocspAttemptResult = ocspAttemptResult;
+        this.isValid = isTotalValid;
     }
 
 
@@ -74,13 +77,14 @@ public class SignatureCertificate {
     public HashValidation getHashValidation() { return hashValidation; }
     public RevocationValidationResult getRevocationValidationResult() { return revocationValidationResult; }
     public RevocationValidationResult getOcspAttemptResult() { return ocspAttemptResult; }
+    public boolean getIsValid() { return isValid; }
 
     public void setType(CertificateType type) { this.type = type; }
     public void setDataValidation(boolean dataValidation) { this.dataValidation = dataValidation; }
     public void setHashValidation(HashValidation hashValidation) { this.hashValidation = hashValidation; }
     public void setRevocationValidationResult(RevocationValidationResult revocationValidationResult) { this.revocationValidationResult = revocationValidationResult; }
     public void setOcspAttemptResult(RevocationValidationResult ocspAttemptResult) { this.ocspAttemptResult = ocspAttemptResult; }
-
+    public void setIsValid(boolean isValid) { this.isValid = isValid; }
 
     @Override
     public String toString() {
@@ -98,6 +102,7 @@ public class SignatureCertificate {
                 ", hashValidation=" + hashValidation +
                 ", revocationValidationResult=" + revocationValidationResult +
                 ", ocspAttemptResult=" + ocspAttemptResult +
+                ", isTotalValid=" + isValid +
                 '}';
     }
 

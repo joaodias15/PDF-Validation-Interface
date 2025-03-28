@@ -7,7 +7,6 @@ import com.exemplo.pdfapi.domain.signature.SignatureCertificate;
 import com.exemplo.pdfapi.domain.validations.HashValidation;
 import com.exemplo.pdfapi.domain.validations.RevocationValidationResult;
 import com.exemplo.pdfapi.errorHandling.MultipleValidationException;
-import com.exemplo.pdfapi.revocationValidation.CertificateRevocationChecker;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
@@ -34,12 +33,15 @@ public class PDFSignatureService {
 
     private final Instant nowUTC;
 
+    private CertificateRevocationChecker checker;
+
     /*
      * Constructor
      * @param env
      */
-    public PDFSignatureService(Environment env) {
+    public PDFSignatureService(Environment env, CertificateRevocationChecker revocationChecker) {
         this.nowUTC = Instant.now();
+        this.checker = revocationChecker;
     }
 
     /*
@@ -101,9 +103,6 @@ public class PDFSignatureService {
                     boolean isValid = verifySignatureIntegrity(certs, signatureInfo, pdfFile, signature);
 
                     report.setPdfValidation(isValid);
-                    if (!isValid) {
-                        break;
-                    }
                 } else {
                     System.out.println("Error extracting the signature.");
                 }
@@ -137,7 +136,7 @@ public class PDFSignatureService {
             }
 
             List<SignatureCertificate> certList = new ArrayList<>();
-            DigitalSignatureInfo signatureInfo = new DigitalSignatureInfo(reason, signingDate, byteRange, certList);
+            DigitalSignatureInfo signatureInfo = new DigitalSignatureInfo(reason, signingDate, byteRange, certList, null);
 
             boolean entityAlreadySet = false;
 
@@ -154,8 +153,13 @@ public class PDFSignatureService {
                 }
 
                 certList.add(new SignatureCertificate(type, cert.getSubjectX500Principal().getName() ,cert.getNotBefore(),
-                            cert.getNotAfter(), cert.getIssuerX500Principal().getName(), cert.getSerialNumber().toString(), cert.getSigAlgName(), cert.getKeyUsage(), cert.getPublicKey(), Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded()), false, null, null, null));
+                            cert.getNotAfter(), cert.getIssuerX500Principal().getName(), cert.getSerialNumber().toString(), cert.getSigAlgName(), cert.getKeyUsage(), cert.getPublicKey(), Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded()), false, null, null, null, false));
             }
+            
+            if (!entityAlreadySet) {
+                signatureInfo.setStructureError("Invalid certificate chain: no ENTITY certificate found.");
+            }
+            
 
             
             return signatureInfo;
@@ -218,38 +222,25 @@ public class PDFSignatureService {
      */
     private boolean verifySignatureIntegrity(List<X509Certificate> certs, DigitalSignatureInfo signatureInfo, File pdfFile, PDSignature signature) {
         try {
-            boolean isCertValid = true;
+            boolean isAllCertValid = true;
 
             // Verification of the data validity of the certificates
             if (!isAllDataValid(signatureInfo)) {
-                isCertValid = false;
+                isAllCertValid = false;
             }
 
             // Verification of the certificates signatures
             for (SignatureCertificate cert : signatureInfo.getCertificates()) {
-                if (!verifyCMSIntegrity(pdfFile, signature, cert)) isCertValid = false;
+                if (!verifyCMSIntegrity(pdfFile, signature, cert)) isAllCertValid = false;
             }
 
             // Verification of the certificates revocation
-            for (int i = 0; i < certs.size(); i++) {
-                X509Certificate cert = certs.get(i);
-                X509Certificate issuerCert = findIssuer(cert, certs);
-            
-                RevocationValidationResult result = verifyCertificateRevocation(cert, issuerCert);
-                boolean notRevoked = result != null && result.getResult();
-            
-                SignatureCertificate certInfo = signatureInfo.getCertificates().get(i);
-                certInfo.setRevocationValidationResult(result);
-                certInfo.setOcspAttemptResult(CertificateRevocationChecker.getLastOCSPAttempt());
-            
-                if (!notRevoked) {
-                    System.out.println("Revoked certificate: " + cert.getSubjectX500Principal());
-                    isCertValid = false;
-                }
+            if (!validateRevocation(certs, signatureInfo)) {
+                isAllCertValid = false;
             }
             
 
-            return isCertValid;
+            return isAllCertValid;
         } catch (Exception e) {
             return false;
         }
@@ -263,6 +254,7 @@ public class PDFSignatureService {
      */
     private boolean isAllDataValid(DigitalSignatureInfo signatureInfo) {
         List<SignatureCertificate> certList = signatureInfo.getCertificates();
+        boolean isAllDataValid = true;
 
         for (SignatureCertificate cert : certList) {
             Instant validFromUTC = cert.getValidFrom().toInstant();
@@ -271,16 +263,20 @@ public class PDFSignatureService {
     
             if (validFromUTC.isAfter(nowUTC)) {
                 cert.setDataValidation(false);
-                return false;
+                cert.setIsValid(false);
+                isAllDataValid = false;
+
             } else if (validToUTC.isBefore(nowUTC)) {
                 cert.setDataValidation(false);
-                return false;
+                cert.setIsValid(false);
+                isAllDataValid = false;
+            } else {
+                cert.setDataValidation(true);
+                cert.setIsValid(true);
             }
-            
-            cert.setDataValidation(true);
         }
-    
-        return true;
+
+        return isAllDataValid;
     }
 
 
@@ -292,8 +288,8 @@ public class PDFSignatureService {
      */
     private RevocationValidationResult verifyCertificateRevocation(X509Certificate cert, X509Certificate issuerCert) {
         try {
-            CertificateRevocationChecker.isCertificateValid(cert, issuerCert, true);
-            RevocationValidationResult result = CertificateRevocationChecker.getRevocationValidationResult();
+            checker.isCertificateValid(cert, issuerCert, true);
+            RevocationValidationResult result = checker.getRevocationValidationResult();
             return result;
         } catch (Exception e) {
             System.out.println("Error verifying the certificate revocation: " + e.getMessage());
@@ -330,18 +326,51 @@ public class PDFSignatureService {
 
 
     /*
+     * Verifies the revocation chain of the certificates
+     * @param certs
+     * @param signatureInfo
+     * @return boolean
+     */
+    private boolean validateRevocation(List<X509Certificate> certs, DigitalSignatureInfo signatureInfo) {
+        boolean allValid = true;
+    
+        for (X509Certificate cert : certs) {
+            X509Certificate issuerCert = findIssuer(cert, certs);
+    
+            RevocationValidationResult result = verifyCertificateRevocation(cert, issuerCert);
+            boolean notRevoked = result != null && result.getResult();
+    
+            SignatureCertificate certInfo = signatureInfo.getCertificateBySigner(cert.getSubjectX500Principal().getName());
+            certInfo.setRevocationValidationResult(result);
+            certInfo.setOcspAttemptResult(checker.getLastOCSPAttempt());
+    
+            if (certInfo.getIsValid() && !notRevoked) {
+                certInfo.setIsValid(false);
+            }
+    
+            if (!notRevoked) {
+                System.out.println("Revoked certificate: " + cert.getSubjectX500Principal());
+                allValid = false;
+            }
+        }
+    
+        return allValid;
+    }
+    
+    /*
      * Finds the issuer of the certificate
      * @param cert
      * @param allCerts
      * @return X509Certificate
      */
     private X509Certificate findIssuer(X509Certificate cert, List<X509Certificate> allCerts) {
-        return allCerts.stream()
-            .filter(issuer -> cert.getIssuerX500Principal().equals(issuer.getSubjectX500Principal()))
-            .findFirst()
-            .orElse(cert);
+        for (X509Certificate issuer : allCerts) {
+            if (cert.getIssuerX500Principal().equals(issuer.getSubjectX500Principal())) {
+                return issuer;
+            }
+        }
+        return cert;
     }
-    
 
 
     /*
@@ -374,6 +403,7 @@ public class PDFSignatureService {
             
             if (!messageDigest.equals(calculatedDigest)) {
                 cert.setHashValidation(new HashValidation(messageDigest, calculatedDigest, false));
+                cert.setIsValid(false);
                 return false;
             } else {
                 cert.setHashValidation(new HashValidation(messageDigest, calculatedDigest, true));
