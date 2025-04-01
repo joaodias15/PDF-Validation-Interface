@@ -1,56 +1,15 @@
-<nav class="navbar navbar-expand-lg" style="background-color: #00aeda;">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center text-white" href="#">
-      <img src="assets/images/logo-egoi.svg" alt="Logo" width="30" height="30" class="logo-egoi">
-    </a>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
-      <ul class="navbar-nav mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link text-white" href="#">Início</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="#">Sobre</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="#">Ajuda</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-
 <div class="container">
   <h2>Validar Assinatura Digital</h2>
 
-  <div class="card">
-    <h3>Upload de Ficheiro</h3>
-    <div class="drop_box">
-      <header>
-        <h4>Seleciona o ficheiro</h4>
-      </header>
-      <p>Ficheiros suportados: PDF</p>
+  <label for="file-upload" class="file-label">Escolher Ficheiro</label>
+  <input id="file-upload" type="file" (change)="onFileSelected($event)" hidden />
 
-      <!-- Input real -->
-      <input type="file" hidden accept=".pdf" id="fileID" (change)="onFileSelected($event)" #fileInput>
+  <p *ngIf="selectedFile" class="file-name">Ficheiro Selecionado: {{ selectedFile.name }}</p>
 
-      <!-- Botão para disparar o input -->
-      <button class="btn" (click)="fileInput.click()">Escolher Ficheiro</button>
-
-      <!-- Mostrar nome do ficheiro -->
-      <p *ngIf="selectedFile" class="file-name">Ficheiro Selecionado: {{ selectedFile.name }}</p>
-
-      <!-- Mostrar botão "Carregar" apenas após seleção -->
-      <button *ngIf="selectedFile" class="btn btn-success mt-2" (click)="uploadFile()" [disabled]="loading">
-        {{ loading ? "A Processar..." : "Validar" }}
-      </button>
-
-      <!-- Mostrar erro se existir -->
-      <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
-    </div>
-  </div>
+  <button (click)="uploadFile()" [disabled]="loading">
+    {{ loading ? "A Processar..." : "Carregar" }}
+  </button>
 </div>
-
 
 <!-- RESULT -->
 <div class="modal" *ngIf="showModal">

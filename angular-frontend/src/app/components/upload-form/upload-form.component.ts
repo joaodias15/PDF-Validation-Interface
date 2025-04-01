@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfUploadService } from '../../services/pdf-upload.service';
-import { ValidationUtils } from '../../utils/validation-utils';
+
 
 @Component({
   selector: 'app-upload-form',
@@ -58,8 +58,6 @@ export class UploadFormComponent {
     return certificates.find(c => c.type === type);
   }
   
-  isSignatureValid = ValidationUtils.isSignatureValid;
-  getInvalidCertificates = ValidationUtils.getInvalidCertificates;
 
   closeModal() {
     this.showModal = false;

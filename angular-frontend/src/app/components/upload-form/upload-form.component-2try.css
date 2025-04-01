@@ -1,0 +1,168 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+.egoi-navbar {
+  background-color: #00b0e6;
+  height: 65px;
+  font-family: 'Poppins', sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+}
+
+.logo {
+  height: 28px;
+}
+
+.egoi-nav {
+  gap: 20px;
+}
+
+.egoi-link {
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  padding: 6px 8px;
+}
+
+.egoi-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.btn-upgrade {
+  height: 28px;
+  padding: 2px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  color: #00b0e6;
+}
+
+.search-input {
+  width: 160px;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 4px 8px;
+  border: none;
+}
+
+.avatar {
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
+
+.text-egoi {
+  color: #fff !important;
+}
+
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: #0e1e40;
+}
+
+
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 100px; 
+  background-color: #0e1e40;
+}
+
+
+.upload-card {
+  background-color: #ffffff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.text-egoi {
+  color: #1c3faa;
+}
+
+.drop_box {
+  border: 2px dashed #a3a3a3;
+  border-radius: 6px;
+  padding: 30px;
+  margin: 20px 0;
+}
+
+.drop_box h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2e2e2e;
+  margin-bottom: 5px;
+}
+
+.drop_box p {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+.btn-egoi {
+  background-color: #1c3faa;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+.btn-egoi:hover {
+  background-color: #0e1e40;
+}
+
+.btn-validate {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+.btn-validate:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.selected-file {
+  font-size: 13px;
+  color: #444;
+  margin-top: 10px;
+}
+
+.alert {
+  font-size: 13px;
+  margin-top: 10px;
+  padding: 8px 12px;
+}

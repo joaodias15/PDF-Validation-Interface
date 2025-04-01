@@ -24,4 +24,5 @@ export class PdfUploadService {
     console.error('Erro ao fazer upload:', error);
     return throwError(() => error);
   }
+  
 }

@@ -11,7 +11,6 @@
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/enums/revocationValidation/RevocationTypeEnum.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/errorHandling/FileValidationException.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/errorHandling/GlobalExceptionHandler.java
-/Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/errorHandling/InvalidSignatureStructureException.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/errorHandling/MultipleValidationException.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/services/CertificateRevocationChecker.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/services/PDFSignatureService.java

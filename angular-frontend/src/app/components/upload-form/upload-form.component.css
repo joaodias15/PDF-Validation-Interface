@@ -3,6 +3,7 @@ h2 {
   font-weight: bold;
   margin-bottom: 40px;
   margin-top: 1px;
+  color: #fff;
 }
 
 body {
@@ -13,49 +14,91 @@ body {
 }
 
 
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
 .container {
-  background: #fff;
-  padding: 40px;
-  max-width: 900px;
+  height: 70vh;
   width: 100%;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  background-color: #fcfcfc;
+}
+
+.card {
   border-radius: 10px;
-  text-align: center;
-  margin-top: 100px;
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.3);
+  width: 600px;
+  height: 360px;
+  background-color: #ffffff;
+  padding: 10px 20px 30px;
+  margin-right: 300px;
 }
 
-.file-label {
-  display: inline-block;
+.card h3 {
+  font-size: 22px;
+  font-weight: 600;
+  
+}
+
+.drop_box {
+  margin: 10px 0;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 3px dotted #a3a3a3;
+  border-radius: 5px;
+}
+
+.drop_box h4 {
+  font-size: 16px;
+  font-weight: 400;
+  color: #2e2e2e;
+}
+
+.drop_box p {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: #a3a3a3;
+}
+
+.btn {
+  text-decoration: none;
+  background-color: #006c87;
+  color: #ffffff;
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.file-label:hover {
-  background-color: #0056b3;
-}
-
-button {
-  display: block;
-  width: 18%;
-  padding: 10px;
-  margin-top: 15px;
-  margin-left: 367px;
-  background-color: #28a745;
   border: none;
-  color: white;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
+  outline: none;
+  transition: 0.3s;
 }
 
-button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
+.btn:hover{
+  text-decoration: none;
+  background-color: #005165;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  outline: 1px solid #010101;
 }
+.form input {
+  margin: 10px 0;
+  width: 100%;
+  background-color: #e2e2e2;
+  border: none;
+  outline: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+}
+
 
 .modal {
   position: fixed;
@@ -356,6 +399,16 @@ hr {
 .error-message {
   color: #cc0000;
   font-weight: bold;
+}
+
+.logo-egoi {
+  width: 70px;
+  height: 35px;
+  margin-top: 20px;
+}
+
+.nav-item {
+  width: 20%;
 }
 
 
