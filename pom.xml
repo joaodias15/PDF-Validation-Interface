@@ -30,14 +30,12 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Apache PDFBox para manipulação de PDFs -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>2.0.27</version> <!-- Usa a versão mais recente -->
+            <version>2.0.27</version>
         </dependency>
 
-        <!-- Bouncy Castle para manipulação de assinaturas digitais -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcmail-jdk15on</artifactId>
@@ -56,21 +54,11 @@
             <version>1.70</version>
         </dependency>
 
-        <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        
 
-        <!-- BouncyCastle para validar assinaturas digitais -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.70</version>
-        </dependency>
-
-        <!-- Spring Boot DevTools (opcional, para desenvolvimento) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -78,7 +66,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

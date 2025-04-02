@@ -66,12 +66,10 @@ public class CertificateRevocationChecker {
             String ocspStatus = revocationValidationResult.getRevocationStatus();
 
             if (ocspStatus.equals(RevocationStatusEnum.GOOD.toString())) {
-                System.out.println("OCSP: certificate valid.");
                 return true;
             }
 
             if (ocspStatus.equals(RevocationStatusEnum.REVOKED.toString())) {
-                System.out.println("OCSP: certificate revoked.");
                 return false;
             }
 
@@ -79,10 +77,8 @@ public class CertificateRevocationChecker {
     
             // OCSP == UNKNOWN → tries CRL if strictMode is enabled
             if (strictMode) {
-                System.out.println("OCSP returned UNKNOWN → trying CRL...");
                 return fallbackToCRL(cert);
             } else {
-                System.out.println("OCSP returned UNKNOWN but the strictMode is inactive → valid.");
                 revocationValidationResult = lastOCSPAttempt;
                 return false;
             }
@@ -91,10 +87,8 @@ public class CertificateRevocationChecker {
             System.out.println("Error obtaining response OCSP to " + cert.getSubjectX500Principal() + ": " + e.getMessage());
     
             if (strictMode) {
-                System.out.println("strictMode active → trying CRL...");
                 return fallbackToCRL(cert);
             } else {
-                System.out.println("strictMode inactive → valid.");
                 revocationValidationResult = lastOCSPAttempt;
                 return false;
             }
@@ -109,13 +103,10 @@ public class CertificateRevocationChecker {
      */
     private boolean fallbackToCRL(X509Certificate cert) {
         try {
-            System.out.println("Trying CRL...");
             boolean crlValid = checkCRL(cert);
             if (!crlValid) {
-                System.out.println("CRL: certificate revoked.");
                 return false;
             }
-            System.out.println("CRL: certificate valid.");
             return true;
         } catch (Exception ex) {
             System.out.println("Error trying CRL: " + ex.getMessage());
@@ -140,7 +131,6 @@ public class CertificateRevocationChecker {
         RevocationValidationResult cached = ocspCache.getIfPresent(cacheKey);
 
         if (cached != null) {
-            System.out.println("OCSP response from cache for: " + cert.getSubjectX500Principal());
             revocationValidationResult = cached;
             return;
         }
@@ -152,7 +142,7 @@ public class CertificateRevocationChecker {
                 RevocationStatusEnum.UNKNOWN.toString(),
                 RevocationTypeEnum.OCSP,
                 null,
-                "OCSP URL not found",
+                "OCSP URL não encontrado",
                 Instant.now(),
                 false
             );
@@ -197,7 +187,7 @@ public class CertificateRevocationChecker {
                             status.toString(),
                             RevocationTypeEnum.OCSP,
                             url,
-                            "OCSP response received",
+                            "resposta OCSP recebida",
                             Instant.now(),
                             status == RevocationStatusEnum.GOOD
                     );
@@ -304,16 +294,15 @@ public class CertificateRevocationChecker {
      * @throws Exception
      */
     public boolean checkCRL(X509Certificate cert) throws Exception {
-        System.out.println("Verifying CRL to: " + cert.getSubjectX500Principal());
 
         byte[] ext = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
         if (ext == null) {
-            System.out.println("Certificate dont have CRL extension.");
+            System.out.println("Certificate " + cert.getSubjectX500Principal().getName() + " dont have CRL extension.");
             revocationValidationResult = new RevocationValidationResult(
                     RevocationStatusEnum.GOOD.toString(),
                     RevocationTypeEnum.CRL,
                     null,
-                    "Certificate dont have CRL extension.",
+                    "Certificado não contém extensão CRL.",
                     Instant.now(),
                     true
             );
@@ -331,19 +320,19 @@ public class CertificateRevocationChecker {
                 X509CRL crl = (X509CRL) cf.generateCRL(in);
 
                 if (crl.isRevoked(cert)) {
-                    System.out.println("Revoked certificate in CRL: " + url);
+                    System.out.println("Revoked certificate " + cert.getSubjectX500Principal().getName() +  " in CRL: " + url);
                     revocationValidationResult = new RevocationValidationResult(
                             RevocationStatusEnum.REVOKED.toString(),
                             RevocationTypeEnum.CRL,
                             url,
-                            "Revoked certificate in CRL",
+                            "Certificado revogado em CRL",
                             Instant.now(),
                             false
                     );
 
                     return false;
                 } else {
-                    System.out.println("Certificate is not in CRL list:: " + url);
+                    System.out.println("Certificate " + cert.getSubjectX500Principal().getName() + " is not revoked in CRL: " + url);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -354,7 +343,7 @@ public class CertificateRevocationChecker {
                 RevocationStatusEnum.GOOD.toString(),
                 RevocationTypeEnum.CRL,
                 lastUsedUrl,
-                "Certificate is not in CRL list",
+                "Certificado não está na lista CRL",
                 Instant.now(),
                 true
         );

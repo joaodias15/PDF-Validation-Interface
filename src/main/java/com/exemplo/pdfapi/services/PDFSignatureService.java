@@ -73,6 +73,15 @@ public class PDFSignatureService {
     }
 
     /*
+     * Validates the PDF document by ID
+     * @param id
+     * @return Report
+     */
+
+
+     
+
+    /*
      * Extracts the digital signature from the PDF document
      * @param pdfFile
      * @return Report
@@ -131,7 +140,7 @@ public class PDFSignatureService {
             
 
             if (certs.isEmpty()) {
-                System.out.println("None certificate found in the signature.");
+                System.out.println("None certificate found in the signature " + signature.getName() + ".");
                 return null;
             }
 
@@ -155,9 +164,17 @@ public class PDFSignatureService {
                 certList.add(new SignatureCertificate(type, cert.getSubjectX500Principal().getName() ,cert.getNotBefore(),
                             cert.getNotAfter(), cert.getIssuerX500Principal().getName(), cert.getSerialNumber().toString(), cert.getSigAlgName(), cert.getKeyUsage(), cert.getPublicKey(), Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded()), false, null, null, null, false));
             }
+
+            // Order the certificates: ENTITY, INTERMEDIATE, ROOT
+            certList.sort(Comparator.comparingInt(cert -> {
+                if (cert.getType() == CertificateType.ENTITY) return 1;
+                if (cert.getType() == CertificateType.INTERMEDIATE) return 2;
+                return 3;
+            }));
             
             if (!entityAlreadySet) {
-                signatureInfo.setStructureError("Invalid certificate chain: no ENTITY certificate found.");
+                signatureInfo.setStructureError("Cadeia de certificação inválida: nenhum certificado do tipo Entidade encontrado!");
+                System.out.println("Certificate chain invalid: no Entity certificate found!");
             }
             
 
@@ -204,6 +221,7 @@ public class PDFSignatureService {
             for (X509CertificateHolder certHolder : certCollection) {
                 X509Certificate cert = new JcaX509CertificateConverter().getCertificate(certHolder);
                 certificateList.add(cert);
+                System.out.println("Certificate extracted: " + cert.getSubjectX500Principal().getName());
             }
         } catch (Exception e) {
             System.out.println("Error extracting the certificate: " + e.getMessage());
@@ -265,14 +283,16 @@ public class PDFSignatureService {
                 cert.setDataValidation(false);
                 cert.setIsValid(false);
                 isAllDataValid = false;
-
+                System.out.println("Certificate with signer " + cert.getSignerName()  + "has an invalid date: " + validFromUTC);
             } else if (validToUTC.isBefore(nowUTC)) {
                 cert.setDataValidation(false);
                 cert.setIsValid(false);
                 isAllDataValid = false;
+                System.out.println("Certificate with signer " + cert.getSignerName()  + "has an invalid date: " + validToUTC);
             } else {
                 cert.setDataValidation(true);
                 cert.setIsValid(true);
+                System.out.println("Certificate with signer " + cert.getSignerName()  + "is valid: " + validFromUTC + " - " + validToUTC);
             }
         }
 
@@ -404,9 +424,11 @@ public class PDFSignatureService {
             if (!messageDigest.equals(calculatedDigest)) {
                 cert.setHashValidation(new HashValidation(messageDigest, calculatedDigest, false));
                 cert.setIsValid(false);
+                System.out.println("Hash validation from " + cert.getSignerName() + " failed: " + messageDigest + " != " + calculatedDigest);
                 return false;
             } else {
                 cert.setHashValidation(new HashValidation(messageDigest, calculatedDigest, true));
+                System.out.println("Hash validation from " + cert.getSignerName() + " succeeded: " + messageDigest + " == " + calculatedDigest);
             }
     
             return verifySignature(signerInfo, signedData, cert);
@@ -448,7 +470,6 @@ public class PDFSignatureService {
             boolean valid = rsaSign.verify(signerInfo.getSignature());
             return valid;
         } catch (Exception e) {
-            System.out.println("Error validating the digital signature: " + e.getMessage());
             return false;
         }
     }
@@ -479,7 +500,6 @@ public class PDFSignatureService {
             bis.reset();
             return contentSigned;
         } catch (Exception e) {
-            System.out.println("Erro ao processar byte range: " + e.getMessage());
             return null;
         }
     }

@@ -61,11 +61,15 @@
     <!-- SIMPLE REPORT -->
     <div class="report-section">
       <h4 class="report-tab">Relatório Simples</h4>
+      
+      <!-- Verificação se não existe assinatura-->
+      <ng-container *ngIf="!responseData.digitalSignatureInfo || responseData.digitalSignatureInfo.length === 0">
+        <p class="error-message">⚠️ Não foram encontradas assinaturas digitais no PDF.</p>
+      </ng-container>
 
       <div *ngFor="let sig of responseData.digitalSignatureInfo; let i = index" class="simple-block">
-        
         <h5 class="section-header">Assinatura #{{ i + 1 }}</h5>
-
+         
         <ng-container *ngIf="sig.structureError">
           <p class="error-message">
             ⚠️ {{ sig.structureError }}
