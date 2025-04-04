@@ -2,33 +2,37 @@ package com.exemplo.pdfapi.controllers;
 
 import com.exemplo.pdfapi.domain.Report;
 import com.exemplo.pdfapi.services.PDFSignatureService;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Controller for handling PDF-related operations such as uploading and validating PDFs.
+ */
 @CrossOrigin(origins = "http://localhost:4200") 
 @RestController
 @RequestMapping("/api/pdf")
-public class PdfController {
+public class UploadPdfController {
 
     private final PDFSignatureService pdfSignatureService;
-    
-    @Value("${pdf.storage.path}")
-    private String pdfStoragePath;
 
-
-
-    public PdfController(PDFSignatureService pdfSignatureService) {
+    /**
+     * Constructs a new PdfController with the specified PDF signature service.
+     *
+     * @param pdfSignatureService the service for processing PDF signatures
+     */
+    public UploadPdfController(PDFSignatureService pdfSignatureService) {
         this.pdfSignatureService = pdfSignatureService;
     }
 
+    /**
+     * Handles the upload of a PDF file and processes its digital signature.
+     *
+     * @param file the uploaded PDF file
+     * @return a ResponseEntity containing the report or an error message
+     */
     @PostMapping("/upload")
     public ResponseEntity<?> uploadPdf(@RequestParam("file") MultipartFile file) {
 
@@ -48,24 +52,7 @@ public class PdfController {
             return ResponseEntity.ok(report);
 
         } catch (IOException e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Error processing tthe file: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("error", "Error processing the file: " + e.getMessage()));
         }
     }
-
-
-    
-    @GetMapping("/validate/{fileId}")
-    public ResponseEntity<Report> validateByFileId(@PathVariable String fileId) {
-        File file = new File(pdfStoragePath + "/" + fileId + ".pdf");
-
-        if (!file.exists()) {
-            System.out.println("File not found: " + file.getAbsolutePath());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        Report report = pdfSignatureService.extractSignature(file);
-        return ResponseEntity.ok(report);
-    }
-    
-
 }

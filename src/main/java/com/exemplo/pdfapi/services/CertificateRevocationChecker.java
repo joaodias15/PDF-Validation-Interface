@@ -40,11 +40,20 @@ public class CertificateRevocationChecker {
         Security.addProvider(new BouncyCastleProvider());
     }
 
+
+    /*
+     * The last revocation validation result.
+     */
     private RevocationValidationResult revocationValidationResult;
 
+    /*
+     * The last OCSP attempt.
+     */
     private RevocationValidationResult lastOCSPAttempt;
 
-    // Cache to avoid multiple OCSP requests for the same certificate
+    /*
+     * The OCSP cache.
+     */
     private static final Cache<String, RevocationValidationResult> ocspCache = CacheBuilder.newBuilder()
             .expireAfterWrite(12, TimeUnit.HOURS)
             .maximumSize(1000)

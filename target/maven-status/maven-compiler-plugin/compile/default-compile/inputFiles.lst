@@ -1,5 +1,6 @@
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/PdfSignatureApiApplication.java
-/Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/controllers/PdfController.java
+/Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/controllers/PdfByIDController.java
+/Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/controllers/UploadPdfController.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/domain/Report.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/domain/error/ApiErrorResponse.java
 /Users/joaodias/vscodeProjects/PDF-Validation-Interface/src/main/java/com/exemplo/pdfapi/domain/signature/CertificateType.java

@@ -17,6 +17,7 @@ import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.util.encoders.Hex;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,9 @@ public class PDFSignatureService {
     private final Instant nowUTC;
 
     private CertificateRevocationChecker checker;
+
+    @Value("${pdf.storage.path}")
+    private String pdfStoragePath;
 
     /*
      * Constructor
@@ -77,9 +81,17 @@ public class PDFSignatureService {
      * @param id
      * @return Report
      */
+    public Report validateByID(String fileId) {
+        File file = new File(pdfStoragePath + "/" + fileId + ".pdf");
 
+        if (!file.exists()) {
+            System.out.println("File not found: " + fileId);
+            return null;
+        }
 
-     
+        return extractSignature(file);
+    }
+
 
     /*
      * Extracts the digital signature from the PDF document
